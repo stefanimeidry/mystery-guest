@@ -252,20 +252,31 @@
         // ⚠️ CONFIGURATION: Replace this string with your exact Apps Script Web App URL
         const DEPLOYED_API_URL = "https://script.google.com/macros/s/AKfycbyCOvEDOPipvixAAOXYHXODyunu-GMollu5cfYi66P-lznPaz57pwxZKLH7U8WKqv1q0g/exec";
 // Render interactive 3D grid layout cards
+// Corrected Render function for 2D Apps Script data layout strings
 function renderGalleryCards(characterRows, isLocked) {
     const grid = document.getElementById("galleryGrid");
     
-    // Build card framework parallel to registration inputs data
-    grid.innerHTML = characterRows.map((row, idx) => `
-        <div class="card-perspective" id="card-${idx}" onclick="this.classList.toggle('flipped')">
-            <div class="card-inner">
-                <div class="card-front">🎭<br>${row[0]}</div>
-                <div class="card-back"><strong>Clue:</strong><br>${row[1]}</div>
-            </div>
-        </div>
-    `).join('');
+    if (!characterRows || characterRows.length === 0) {
+        grid.innerText = "Lobby is empty. Be the first to join!";
+        return;
+    }
 
-    // If lobby is locked, let organizer visualize matching vectors
+    // Explicitly target element [0] for the character name, and element [1] for the description clue string
+    grid.innerHTML = characterRows.map((row, idx) => {
+        const charName = Array.isArray(row) ? row[0] : row;
+        const charClue = Array.isArray(row) ? row[1] : "No clue submitted.";
+        
+        return `
+            <div class="card-perspective" id="card-${idx}" onclick="this.classList.toggle('flipped')">
+                <div class="card-inner">
+                    <div class="card-front">🎭<br>${charName}</div>
+                    <div class="card-back"><strong>Clue:</strong><br>${charClue}</div>
+                </div>
+            </div>
+        `;
+    }).join('');
+
+    // If lobby is locked, display the admin visualization graph options box
     if (isLocked) {
         document.getElementById("adminRevealSection").style.display = "block";
     }
